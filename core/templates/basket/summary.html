@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Basket Summary{% endblock %}
+{% block content %}
+
+
+<main class="pt-5">
+    <div class="container">
+
+
+
+
+      <div class="col-12">
+        <h1 class="h2">Your Basket</h1>
+      </div>
+      <div>
+        <p>Manage your <b>items</b> in your basket</p>
+      </div>
+      <hr />
+      <div class="container">
+        <div class="row g-3">
+          <div class="col-12 bg-light p-3">
+            <div class="">Order</div>
+              <div class="dropdown">
+                  <a class="text-reset text-decoration-none dropdown-toggle" href="" role="link" 
+                  id="dropdownLink" data-bs-toggle='dropdown' aria-expanded="false"> 
+                  Shipping options
+                  </a>
+                  <ul>
+                    <li class="item small">Next day delivery</li>
+                    <li class="item small">Premimum delivery</li>
+                  </ul>
+              </div>
+          </div> 
+        </div>
+      </div>
+
+
+      <div class="col-md-5 col-lg-4 order-md-last p-0 order-3">
+        <div class="d-grid gap-2">
+          <a href="{% url 'basket' %}" class="btn btn-success fw-bold" type="button">Checkout</a>
+          <button class="btn btn-light" type="button">Save for later</button>
+        </div>
+      </div>
+      {% for item in basket %}
+        {% with product=item.product %}
+        <div data-index="{{product.id}}" class="row mb-4 border product-item">
+            <div class="col-md-3 col-lg-2 order-md-first bg-light">
+            <img class="img-fluid mx-auto d-block" width="120px" alt="Responsive image" src="{{ product.image.url }}">
+            </div>
+            <div class="col-md-9 col-lg-10 ps-md-3 ps-lg-10">
+            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-reset">
+                <h1 class="h5 pt-2">{{ product.title }}</h1>
+            </a>
+            <div class="border">
+                <div class="col border-bottom">
+                <div class="row p-3">
+                    <div class="col-6">Hardback Book</div>
+                    <div class="col-6 text-end"><span class="h6 fw-bold">£{{ product.price }}</span></div>
+                </div>
+                </div>
+                <div class="col">
+                <div class="row p-3">
+                    <div class="col-12">
+                    <label for="select">Qty</label>
+                    <select id="select{{product.id}}">
+                        <option selected>
+                        {{item.qty}}
+                        </option>
+                        <option value="">1</option>
+                        <option value="">2</option>
+                        <option value="">3</option>
+                        <option value="">4</option>
+                    </select>
+                    <button type="button" id="update-button" data-index="{{product.id}}"
+                        class="btn btn-outline-secondary btn-sm update-button">
+                        Update
+                    </button>
+                    <button type="button" id="delete-button" data-index="{{product.id}}"
+                        class="btn btn-outline-secondary btn-sm delete-button">
+                        Delete
+                    </button>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endwith %}
+      {% endfor %}
+      <div class="col-12 text-end">
+        <div class="h6 fw-bold">Sub Total: £<div id="subtotal" class="d-inline-flex">{{basket.get_total_price}}</div></div>
+      </div>
+    </div>
+  </main>
+
+
+<script>
+    console.log('was good')
+    // delete item
+    $(document).on("click", '.delete-button', function(e){
+        console.log('clicked delete')
+        e.preventDefault();
+        var prodid = $(this).data('index');
+        console.log(prodid)
+        $.ajax({
+            type: 'POST',
+            url: '{% url "basket_delete" %}',
+            data: {
+                productid: $(this).data('index'),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'POST'                
+            },
+            success: function(json){
+                $('.product-item[data-index="' + prodid + '"]').remove();
+                document.getElementById("subtotal").innerHTML = json.subtotal;
+                document.getElementById("basket-qty").innerHTML = json.qty;
+            },
+            error: function(xhr, errmsg, err){
+                console.log(errmsg)
+            }
+
+        });
+    })
+
+  // Update Item
+  $(document).on("click", ".update-button", function (e) {
+    e.preventDefault();
+    var prodid = $(this).data("index");
+    $.ajax({
+      type: "POST",
+      url: '{% url "basket_update" %}',
+      data: {
+        productid: $(this).data("index"),
+        productqty: $("#select" + prodid + " option:selected").text(),
+        csrfmiddlewaretoken: "{{csrf_token}}",
+        action: "POST",
+      },
+      success: function (json) {
+        total = (parseFloat(json.subtotal) + 11.50).toFixed(2);
+        document.getElementById("basket-qty").innerHTML = json.qty;
+        document.getElementById("subtotal").innerHTML = json.subtotal;
+        // document.getElementById("total").innerHTML = total;
+      },
+      error: function (xhr, errmsg, err) {
+      console.log(errmsg, err)
+
+    },
+    
+    });
+  });
+</script>
+
+{% endblock %}

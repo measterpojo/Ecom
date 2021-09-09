@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<div class="py-t">
+   <div class="container" style="max-width: 100%;">
+      <div class="col-12">
+         <h1> {{ request.user.name }}'s Dashboard</h1>
+      </div>
+      <hr>
+      <div class="d-flex align-items-center"></div> 
+      <div >
+         <div><a href="{% url 'edit' %}">Edit Details</a></div>            
+      </div> 
+ 
+   </div>
+   <div class="container" style="max-width: 1000px;">
+      {% for order in orders %}
+      <div class="row g-3">
+         <div class="">{{ order.created }}</div>
+      </div>
+
+      <a class="text-reset text-decoration-none"> 
+
+      </a>
+
+
+      {% endfor %}
+   </div>
+</div>
+
+
+{% endblock %}

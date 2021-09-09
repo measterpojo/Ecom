@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="login d-flex align-items-center py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-lg-7 mx-auto">
+                            <h3>Edit Information</h3>
+                            <form method="post">
+
+                                {{ user_form }}
+                                <button type="submit">
+                                    submit
+                                </button>
+                            </form>
+                            <hr>
+                            <form class="account-form" method="POST" action="{% url 'delete_user' %}">
+                                {% csrf_token %}
+                                <p>Delete Account</p>
+                                <button type="submit" role="button" class="btn btn-danger btn-block py-2 mt-5">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
